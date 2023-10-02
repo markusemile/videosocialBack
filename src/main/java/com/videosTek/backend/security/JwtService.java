@@ -3,6 +3,7 @@ package com.videosTek.backend.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,10 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY="7tWSS17nM0+++epc+X9oY1niDfu6r62nc9Rlj7KrNi24R/pAkV2WiQRTNlD7pgJi";
+    @Value("${app.token-key}")
+    private String tokenKey;
+
+    private final String SECRET_KEY=tokenKey;
     public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
     }
