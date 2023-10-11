@@ -1,5 +1,6 @@
 package com.videosTek.backend.entity;
 
+import com.videosTek.backend.entity.dto.MovieDetailDto;
 import com.videosTek.backend.entity.dto.MovieDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,7 +42,7 @@ public class Movie {
     @Column(unique = true)
     private String posterPath;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Genre> genres;
 
     @Column(columnDefinition = "TEXT")
@@ -51,7 +52,7 @@ public class Movie {
 
     private Double popularity;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(referencedColumnName = "id")
     private BelongsToCollection belongsToCollection;
 
@@ -65,26 +66,29 @@ public class Movie {
 
     private Integer voteCount;
 
+    private Integer runtime;
+
    // private Credit credits;
 
-    public static Movie fromMovieDto(MovieDto movieDto){
+    public static Movie fromMovieDto(MovieDetailDto movieDto){
         return Movie.builder()
-                .movieId(movieDto.getId())
-                .title(movieDto.getTitle())
-                .originalTitle(movieDto.getOriginal_title())
-                .releaseDate(movieDto.getRelease_date())
-                .overview(movieDto.getOverview())
-                .tagline(movieDto.getTagline())
-                .belongsToCollection(movieDto.getBelongs_to_collection())
                 .adult(movieDto.getAdult())
                 .backdropPath(movieDto.getBackdrop_path())
-                .posterPath(movieDto.getPoster_path())
-                .genres(movieDto.getGenres())
-                .originalLanguage(movieDto.getOriginal_language())
                 .budget(movieDto.getBudget())
-                .revenue(movieDto.getRevenue())
+                .genres(movieDto.getGenres())
+                .movieId(movieDto.getId())
+                .originalLanguage(movieDto.getOriginal_language())
+                .originalTitle(movieDto.getOriginal_title())
+                .overview(movieDto.getOverview())
                 .popularity(movieDto.getPopularity())
-                .voteCount(movieDto.getVoteCount())
+                .posterPath(movieDto.getPoster_path())
+                .releaseDate(movieDto.getRelease_date())
+                .revenue(movieDto.getRevenue())
+                .tagline(movieDto.getTagline())
+                .title(movieDto.getTitle())
+                .voteCount(movieDto.getVote_count())
+                .belongsToCollection(movieDto.getBelongs_to_collection())
+                .runtime(movieDto.getRuntime())
                 .build();
     }
 

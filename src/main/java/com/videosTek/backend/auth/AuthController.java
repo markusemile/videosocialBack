@@ -10,17 +10,16 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping(path="api/auth",consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = "http://localhost:4200")
+
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService service;
 
     @PostMapping("register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<ApiResponse> register(
             @RequestBody RegisterRequest request
     ) {
-
         return ResponseEntity.ok().body(service.register(request));
     }
 

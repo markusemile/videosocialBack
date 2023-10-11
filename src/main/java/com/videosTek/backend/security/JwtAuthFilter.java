@@ -39,6 +39,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
+            System.out.println(request.getRemoteAddr());
+            System.out.println(request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setHeader("X-Error-Message","unauthorized access");
             filterChain.doFilter(request,response);
@@ -58,7 +60,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken );
-                System.out.println(userDetails.getUsername());
             }else{
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Token not valid");

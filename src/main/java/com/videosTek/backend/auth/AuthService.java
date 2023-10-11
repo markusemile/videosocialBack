@@ -38,7 +38,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public ResponseEntity<ApiResponse> register(RegisterRequest request) {
+    public ApiResponse register(RegisterRequest request) {
 
         var user = User.builder()
                 .username(request.getUsername())
@@ -69,7 +69,7 @@ public class AuthService {
                 .status(EnumStatus.SUCCESS)
                 .message("You're account is activate. Your can signIn !")
                 .build();
-        return ResponseEntity.ok().body(res);
+        return res;
     }
 
     public Object login(LoginRequest request) {

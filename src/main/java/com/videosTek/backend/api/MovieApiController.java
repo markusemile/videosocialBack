@@ -4,6 +4,7 @@ package com.videosTek.backend.api;
 import com.videosTek.backend.entity.Mediatek;
 import com.videosTek.backend.entity.Movie;
 import com.videosTek.backend.entity.User;
+import com.videosTek.backend.entity.dto.MovieDetailDto;
 import com.videosTek.backend.entity.dto.MovieDto;
 import com.videosTek.backend.entity.response.ApiResponse;
 import com.videosTek.backend.entity.response.EnumStatus;
@@ -13,7 +14,6 @@ import com.videosTek.backend.service.genre.GenreServiceImpl;
 import com.videosTek.backend.service.mediatek.MediatekServiceImpl;
 import com.videosTek.backend.service.movie.MovieServiceImpl;
 import com.videosTek.backend.service.user.UserServiceImpl;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,18 +25,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin
 @RequestMapping(path = "api/movie", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class MovieApiController {
 
@@ -47,8 +47,8 @@ public class MovieApiController {
     private final BtcServiceImpl btcService;
 
 
-
-    @GetMapping(value = "{id}")
+    // add if not UUID return all movie of movies table
+    @GetMapping(path = "{id}")
     @ResponseBody
     public ResponseEntity<ApiResponse> getMovieList(
             @PathVariable UUID id,
@@ -68,7 +68,6 @@ public class MovieApiController {
                         movies.add(MovieDto.fromMovie(optM.get()));
                     }
                 }
-
 
                 // pagination de la liste
                 int defaultPage = 0;
@@ -108,20 +107,25 @@ public class MovieApiController {
 
     @PostMapping(path = "save")
     @ResponseBody
-    public ResponseEntity<ApiResponse> saveMovie(@RequestBody MovieDto movie) {
+    public ResponseEntity<ApiResponse> saveMovie(@RequestBody MovieDetailDto movie) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
+
         Movie m = Movie.fromMovieDto(movie);
+
         ApiResponse res = ApiResponse.builder().build();
         res.setTime(LocalDateTime.now());
         Optional<User> optU = userService.findByEmail(email);
+
         Optional<Movie> optMovie = this.movieService.findMovieByMovieId(movie.getId());
 
-        if(optU.isEmpty()) {
+
+        if(optU.isEmpty()) { // if not user  not found
             res.setStatus(EnumStatus.ERROR);
             res.setMessage("User not logged");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
-        }else{
+        }else{ // if user found
             User user = optU.get();
             // we check if movie exist already into the mediatek, if yes not necessary ti save the movie into database or mediatek
             Boolean ifMovieExistYetIntoMediatek = this.mediatekService.ifMediatekContain(m.getMovieId(),user.getId());
@@ -131,9 +135,14 @@ public class MovieApiController {
                 if(optMovie.isEmpty()){
                     // we need just to add into the mediatek
                     try{
+                        m.getGenres().forEach(g->{
+                            System.out.println(g.getId());
+                            System.out.println(g.getName());
+
+                        });
                         m.getGenres().forEach(this.genreService::save);
                         if (m.getBelongsToCollection() != null) btcService.save(m.getBelongsToCollection());
-                        Movie movieSaved = movieService.save(m);
+                        movieService.save(m);
                     }catch(Exception e){
                         res.setStatus(EnumStatus.ERROR);
                         res.setMessage("Unable to save the movie into de datatable");
@@ -151,6 +160,29 @@ public class MovieApiController {
                 return ResponseEntity.ok().body(res);
             }
         }
+    }
+
+    @GetMapping(path="/detail/{movieID}")
+    @ResponseBody
+    public ResponseEntity<ApiResponse> getMovieDetail(
+            @PathVariable String movieID){
+        System.out.println(movieID);
+        ApiResponse apiResponse = ApiResponse.builder().build();
+        apiResponse.setTime(LocalDateTime.now());
+        apiResponse.setStatus(EnumStatus.SUCCESS);
+
+        Optional<Movie> optMovie = this.movieService.findMovieByMovieId(Long.parseLong(movieID));
+
+        if(optMovie.isPresent()){
+            MovieDetailDto movie = MovieDetailDto.fromMovie(optMovie.get());
+            apiResponse.setStatus(EnumStatus.SUCCESS);
+            apiResponse.setData(movie);
+        }else{
+            apiResponse.setStatus(EnumStatus.ERROR);
+            apiResponse.setMessage("Movie with movie-id:"+movieID+" was not found.");
+        }
+
+        return ResponseEntity.ok().body(apiResponse);
     }
 
 }

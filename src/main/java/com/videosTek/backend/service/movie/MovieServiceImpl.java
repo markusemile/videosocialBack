@@ -1,6 +1,7 @@
 package com.videosTek.backend.service.movie;
 
 import com.videosTek.backend.entity.Movie;
+import com.videosTek.backend.repository.GenreRepository;
 import com.videosTek.backend.repository.MovieRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,8 @@ public class MovieServiceImpl implements MovieService{
     public Movie save(Movie m){
         Optional<Movie> opt = this.movieRepository.findByMovieId((m.getMovieId()));
         if(opt.isEmpty()) {
+//            Movie mm = Movie.builder().build();
+//            mm.setTitle("hello");
             this.movieRepository.save(m);
             return m;
         }else{

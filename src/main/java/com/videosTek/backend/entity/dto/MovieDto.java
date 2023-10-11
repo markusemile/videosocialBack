@@ -26,35 +26,15 @@ public class MovieDto {
 
     private Boolean adult;
 
-    private String original_language;
-
     private String release_date;
-
-    private String backdrop_path;
 
     private String poster_path;
 
-    private List<Genre> genres = new ArrayList<>();
-
-    private String overview;
-
     private String tagline;
 
-    private Double popularity;
 
-    private BelongsToCollection belongs_to_collection;
 
-    //private ProductionCompany productionCompanies;
 
-    // private ProductionCountry productionCountries;
-
-    private Long budget;
-
-    private Long revenue;
-
-    private Integer voteCount;
-
-    // private Credit credits;
 
     public static MovieDto fromMovie(Movie movie){
         return MovieDto.builder()
@@ -62,6 +42,7 @@ public class MovieDto {
                 .adult(movie.getAdult())
                 .original_title(movie.getOriginalTitle())
                 .title(movie.getTitle())
+                .tagline(movie.getTagline())
                 .poster_path(movie.getPosterPath())
                 .release_date(movie.getReleaseDate())
                 .build();

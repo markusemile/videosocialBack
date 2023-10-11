@@ -29,7 +29,7 @@ public class GenreServiceImpl implements GenreService {
     }
 
     public void save(Genre genre){
-
-        this.genreRepository.save(genre);
+        Optional<Genre> optGenre = this.genreRepository.findFirstById(genre.getId());
+        if(optGenre.isEmpty()) this.genreRepository.save(genre);
     }
 }
